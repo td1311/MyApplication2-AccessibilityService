@@ -6,6 +6,7 @@ import android.accessibilityservice.GestureDescription.StrokeDescription
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.media.AudioManager
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,10 +15,19 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Button
 import android.widget.FrameLayout
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.debounce
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
 
 class GlobalActionBarService : AccessibilityService() {
     var mLayout: FrameLayout? = null
 
+    @InternalCoroutinesApi
     override fun onServiceConnected() {
         super.onServiceConnected()
         val wm = getSystemService(WINDOW_SERVICE) as WindowManager
@@ -36,6 +46,7 @@ class GlobalActionBarService : AccessibilityService() {
         configureVolumeButton()
         configureScrollButton()
         configureSwipeButton()
+        buildSocket()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -44,6 +55,32 @@ class GlobalActionBarService : AccessibilityService() {
 
     override fun onInterrupt() {
 
+    }
+
+    @InternalCoroutinesApi
+    suspend fun observe() {
+        EchoWebSocketListener.channel
+            .asFlow()
+            .collect { value ->
+                Log.v("GABS", value)
+                val scrollable = findScrollableNode(rootInActiveWindow)
+                scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD.id)
+            }
+    }
+
+    @InternalCoroutinesApi
+    private fun buildSocket() {
+        val client = OkHttpClient.Builder()
+            .readTimeout(3, TimeUnit.SECONDS)
+            .build()
+        val request = Request.Builder()
+            .url("ws://10.0.2.2:8080/websession")
+            .build()
+        val wsListener = EchoWebSocketListener
+        val webSocket = client.newWebSocket(request, wsListener)
+        runBlocking {
+            observe()
+        }
     }
 
     private fun configurePowerButton() {
@@ -57,8 +94,10 @@ class GlobalActionBarService : AccessibilityService() {
         val volumeUpButton: Button = mLayout!!.findViewById<View>(R.id.volume_up) as Button
         volumeUpButton.setOnClickListener {
             val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
-                    AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
+            audioManager.adjustStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI
+            )
         }
     }
 
