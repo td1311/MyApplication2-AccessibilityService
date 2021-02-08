@@ -63,8 +63,44 @@ class GlobalActionBarService : AccessibilityService() {
             .asFlow()
             .collect { value ->
                 Log.v("GABS", value)
-                val scrollable = findScrollableNode(rootInActiveWindow)
-                scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD.id)
+                if (value == "SwipeRight") {
+                    val swipePath = Path()
+                    swipePath.moveTo(500f, 500f)
+                    swipePath.lineTo(50f, 500f)
+                    val gestureBuilder = GestureDescription.Builder()
+                    gestureBuilder.addStroke(StrokeDescription(swipePath, 0, 500))
+                    dispatchGesture(gestureBuilder.build(), null, null)
+                }
+                else if (value == "SwipeLeft") {
+                    val swipePath = Path()
+                    swipePath.moveTo(50f, 500f)
+                    swipePath.lineTo(500f, 500f)
+                    val gestureBuilder = GestureDescription.Builder()
+                    gestureBuilder.addStroke(StrokeDescription(swipePath, 0, 500))
+                    dispatchGesture(gestureBuilder.build(), null, null)
+                }
+                else if (value == "ScrollDown") {
+                    val scrollable = findScrollableNode(rootInActiveWindow)
+                    scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD.id)
+                }
+                else if (value == "ScrollUp") {
+                    val scrollable = findScrollableNode(rootInActiveWindow)
+                    scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP.id)
+                }
+                else if (value == "Back") {
+                    performGlobalAction(GLOBAL_ACTION_BACK)
+                }
+                else if (value == "Home") {
+                    Log.v("Home", value)
+                    performGlobalAction(GLOBAL_ACTION_HOME)
+                }
+                else if (value == "Overview") {
+                    performGlobalAction(GLOBAL_ACTION_RECENTS)
+                }
+                else {
+                    Log.v("else", value)
+                    performGlobalAction(GLOBAL_ACTION_BACK)
+                }
             }
     }
 

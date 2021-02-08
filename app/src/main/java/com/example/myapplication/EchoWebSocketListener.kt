@@ -25,11 +25,11 @@ object EchoWebSocketListener : WebSocketListener() {
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
-        output("Receiving : " + text!!)
+        output(text)
     }
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-        output("Receiving bytes : " + bytes!!.hex())
+        output(bytes.hex())
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {

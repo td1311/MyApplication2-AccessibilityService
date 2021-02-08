@@ -3,16 +3,29 @@ package com.example.myapplication
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.PixelFormat
+import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
+import android.media.Image
+import android.media.ImageReader
+import android.media.ImageReader.OnImageAvailableListener
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import android.os.Environment
+import android.os.Handler
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.nio.ByteBuffer
 
 
 /**
@@ -33,6 +46,12 @@ class FirstFragment : Fragment() {
     private var mMediaProjectionManager: MediaProjectionManager? = null
     private var mButtonToggle: Button? = null
     private var mSurfaceView: SurfaceView? = null
+    var imageReader: ImageReader? = null
+    private val handler: Handler? = null
+    private var displayWidth = 0
+    private var displayHeight: Int = 0
+    private var imagesProduced: Int = 0
+    private val max_imageno = 200
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,8 +117,19 @@ class FirstFragment : Fragment() {
             Log.i(TAG, "Starting screen capture")
             mResultCode = resultCode
             mResultData = data
+
             setUpMediaProjection()
+
+            val display: Display = activity!!.windowManager.defaultDisplay
+            val size = Point()
+            display.getSize(size)
+            displayHeight = size.y
+            displayWidth = size.x
+            imageReader = ImageReader.newInstance(size.x, size.y, PixelFormat.RGBA_8888, 2);
+
             setUpVirtualDisplay()
+
+            imageReader?.setOnImageAvailableListener(ImageAvailableListener(), handler)
         }
     }
 
@@ -167,4 +197,86 @@ class FirstFragment : Fragment() {
         mVirtualDisplay = null
         mButtonToggle?.text = "start"
     }
+
+    class ImageAvailableListener() : OnImageAvailableListener {
+        override fun onImageAvailable(reader: ImageReader) {
+            Log.i("ScreenCaptureFragment", "onImageAvailable 1")
+            var image: Image? = null
+            val fos: FileOutputStream? = null
+            var bitmap: Bitmap? = null
+            var stream: ByteArrayOutputStream? = null
+            try {
+                image = FirstFragment().imageReader?.acquireLatestImage()
+                if (image != null) {
+                    val planes: Array<Image.Plane> = image.getPlanes()
+                    val buffer: ByteBuffer = planes[0].getBuffer()
+                    val pixelStride: Int = planes[0].getPixelStride()
+                    val rowStride: Int = planes[0].getRowStride()
+                    val rowPadding: Int = rowStride - pixelStride * FirstFragment().displayWidth
+
+                    // create bitmap
+                    bitmap = Bitmap.createBitmap(
+                        FirstFragment().displayWidth + rowPadding / pixelStride,
+                        FirstFragment().displayHeight, Bitmap.Config.ARGB_8888
+                    )
+                    bitmap.copyPixelsFromBuffer(buffer)
+
+                    //if (skylinkConnection != null && !TextUtils.isEmpty(currentRemotePeerId)) {
+                    stream = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 5, stream)
+                    FirstFragment().createImage(bitmap, FirstFragment().imagesProduced)
+                    //skylinkConnection.sendData(currentRemotePeerId, stream.toByteArray());
+                    //Log.d(TAG, "sending data to peer :" + currentRemotePeerId);
+                    //}
+                    Log.i("ScreenCaptureFragment", "onImageAvailable 2")
+                    FirstFragment().imagesProduced++
+                    if (FirstFragment().imagesProduced == FirstFragment().max_imageno) {
+                        FirstFragment().imagesProduced = 0
+                    }
+                    Log.e("hi", "captured image: ${FirstFragment().imagesProduced}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close()
+                    } catch (ioe: IOException) {
+                        ioe.printStackTrace()
+                    }
+                }
+                if (stream != null) {
+                    try {
+                        stream.close()
+                    } catch (ioe: IOException) {
+                        ioe.printStackTrace()
+                    }
+                }
+                bitmap?.recycle()
+                image?.close()
+            }
+        }
+    }
+
+
+    fun createImage(bmp: Bitmap, i: Int) {
+        val bytes = ByteArrayOutputStream()
+        bmp.compress(Bitmap.CompressFormat.JPEG, 10, bytes)
+        val file1 = File(Environment.getExternalStorageDirectory().toString() + "/captures")
+        file1.mkdir()
+        val file = File(
+            Environment.getDataDirectory().toString() +
+                    "/captures/capturedscreenandroid" + i + ".jpg"
+        )
+        try {
+            file.createNewFile()
+            val outputStream = FileOutputStream(file)
+            outputStream.write(bytes.toByteArray())
+            outputStream.close()
+            //Toast.makeText(getApplicationContext(),"success",Toast.LENGTH_SHORT).show();
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 }
