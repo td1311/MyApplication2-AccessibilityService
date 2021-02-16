@@ -70,36 +70,40 @@ class GlobalActionBarService : AccessibilityService() {
                     val gestureBuilder = GestureDescription.Builder()
                     gestureBuilder.addStroke(StrokeDescription(swipePath, 0, 500))
                     dispatchGesture(gestureBuilder.build(), null, null)
-                }
-                else if (value == "SwipeLeft") {
+                } else if (value == "SwipeLeft") {
                     val swipePath = Path()
                     swipePath.moveTo(50f, 500f)
                     swipePath.lineTo(500f, 500f)
                     val gestureBuilder = GestureDescription.Builder()
                     gestureBuilder.addStroke(StrokeDescription(swipePath, 0, 500))
                     dispatchGesture(gestureBuilder.build(), null, null)
-                }
-                else if (value == "ScrollDown") {
+                } else if (value == "ScrollDown") {
                     val scrollable = findScrollableNode(rootInActiveWindow)
                     scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD.id)
-                }
-                else if (value == "ScrollUp") {
-                    val scrollable = findScrollableNode(rootInActiveWindow)
-                    scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP.id)
-                }
-                else if (value == "Back") {
+                } else if (value == "ScrollUp") {
+                    val scrollable = findScrollableNode2(rootInActiveWindow)
+                    scrollable?.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_BACKWARD.id)
+                } else if (value == "Back") {
                     performGlobalAction(GLOBAL_ACTION_BACK)
-                }
-                else if (value == "Home") {
+                } else if (value == "Home") {
                     Log.v("Home", value)
                     performGlobalAction(GLOBAL_ACTION_HOME)
-                }
-                else if (value == "Overview") {
+                } else if (value == "Overview") {
                     performGlobalAction(GLOBAL_ACTION_RECENTS)
-                }
-                else {
+                } else if (value == "Tap") {
+                    val swipePath = Path()
+                    swipePath.moveTo(500f, 500f)
+                    val gestureBuilder = GestureDescription.Builder()
+                    gestureBuilder.addStroke(StrokeDescription(swipePath, 0, 50))
+                    dispatchGesture(gestureBuilder.build(), null, null);
+                } else if (value == "Press") {
+                    val swipePath = Path()
+                    swipePath.moveTo(500f, 500f)
+                    val gestureBuilder = GestureDescription.Builder()
+                    gestureBuilder.addStroke(StrokeDescription(swipePath, 0, 500))
+                    dispatchGesture(gestureBuilder.build(), null, null);
+                } else {
                     Log.v("else", value)
-                    performGlobalAction(GLOBAL_ACTION_BACK)
                 }
             }
     }
@@ -163,6 +167,21 @@ class GlobalActionBarService : AccessibilityService() {
         while (!deque.isEmpty()) {
             val node: AccessibilityNodeInfo = deque.removeFirst()
             if (node.actionList.contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD)) {
+                return node
+            }
+            for (i in 0 until node.childCount) {
+                deque.addLast(node.getChild(i))
+            }
+        }
+        return null
+    }
+
+    private fun findScrollableNode2(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        val deque: ArrayDeque<AccessibilityNodeInfo> = ArrayDeque()
+        deque.add(root)
+        while (!deque.isEmpty()) {
+            val node: AccessibilityNodeInfo = deque.removeFirst()
+            if (node.actionList.contains(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_BACKWARD)) {
                 return node
             }
             for (i in 0 until node.childCount) {
