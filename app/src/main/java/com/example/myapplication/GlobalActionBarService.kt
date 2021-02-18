@@ -42,11 +42,11 @@ class GlobalActionBarService : AccessibilityService() {
         val inflater = LayoutInflater.from(this)
         inflater.inflate(R.layout.action_bar, mLayout)
         wm.addView(mLayout, lp)
-        configurePowerButton()
-        configureVolumeButton()
-        configureScrollButton()
-        configureSwipeButton()
-        buildSocket()
+//        configurePowerButton()
+//        configureVolumeButton()
+//        configureScrollButton()
+//        configureSwipeButton()
+//        buildSocket()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {

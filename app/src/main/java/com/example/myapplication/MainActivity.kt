@@ -7,8 +7,10 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,6 +31,14 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         Log.v("permission", isAccessServiceEnabled.toString())
+//        val rebootWorkRequest: WorkRequest = OneTimeWorkRequestBuilder<RebootWorker>().build()
+//        val rebootWorkRequest =
+//            PeriodicWorkRequestBuilder<RebootWorker>(15, TimeUnit.MINUTES).build()
+//        WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
+//            "MyUniqueWorkName",
+//            ExistingPeriodicWorkPolicy.KEEP,
+//            rebootWorkRequest
+//        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
