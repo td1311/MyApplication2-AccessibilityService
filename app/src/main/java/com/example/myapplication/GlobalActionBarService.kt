@@ -15,6 +15,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Button
 import android.widget.FrameLayout
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.debounce
@@ -22,6 +23,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class GlobalActionBarService : AccessibilityService() {
@@ -41,12 +43,20 @@ class GlobalActionBarService : AccessibilityService() {
         lp.gravity = Gravity.TOP
         val inflater = LayoutInflater.from(this)
         inflater.inflate(R.layout.action_bar, mLayout)
-        wm.addView(mLayout, lp)
+//        wm.addView(mLayout, lp)
 //        configurePowerButton()
 //        configureVolumeButton()
 //        configureScrollButton()
 //        configureSwipeButton()
 //        buildSocket()
+        Log.i("GABS", "turn on 1")
+//        runBlocking {
+//            observe()
+//        }
+        GlobalScope.launch {
+            observe()
+        }
+        Log.i("GABS", "turn on 2")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
