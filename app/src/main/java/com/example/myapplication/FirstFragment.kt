@@ -221,13 +221,9 @@ class FirstFragment : Fragment() {
                     )
                     bitmap.copyPixelsFromBuffer(buffer)
 
-                    //if (skylinkConnection != null && !TextUtils.isEmpty(currentRemotePeerId)) {
                     stream = ByteArrayOutputStream()
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 5, stream)
                     FirstFragment().createImage(bitmap, FirstFragment().imagesProduced)
-                    //skylinkConnection.sendData(currentRemotePeerId, stream.toByteArray());
-                    //Log.d(TAG, "sending data to peer :" + currentRemotePeerId);
-                    //}
                     Log.i("ScreenCaptureFragment", "onImageAvailable 2")
                     FirstFragment().imagesProduced++
                     if (FirstFragment().imagesProduced == FirstFragment().max_imageno) {

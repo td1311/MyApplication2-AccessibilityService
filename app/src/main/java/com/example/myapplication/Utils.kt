@@ -10,7 +10,6 @@ object Utils {
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             )
-//        return prefString.contains("${context.packageName}/${context.packageName}.GlobalActionBarService")
         return prefString != null && prefString.contains("${context.packageName}/${context.packageName}.GlobalActionBarService")
     }
 }

@@ -49,14 +49,10 @@ class GlobalActionBarService : AccessibilityService() {
 //        configureScrollButton()
 //        configureSwipeButton()
 //        buildSocket()
-        Log.i("GABS", "turn on 1")
-//        runBlocking {
-//            observe()
-//        }
         GlobalScope.launch {
             observe()
         }
-        Log.i("GABS", "turn on 2")
+        Log.i("GABS", "turn on")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {

@@ -31,14 +31,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         Log.v("permission", isAccessServiceEnabled.toString())
-//        val rebootWorkRequest: WorkRequest = OneTimeWorkRequestBuilder<RebootWorker>().build()
-//        val rebootWorkRequest =
-//            PeriodicWorkRequestBuilder<RebootWorker>(15, TimeUnit.MINUTES).build()
-//        WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
-//            "MyUniqueWorkName",
-//            ExistingPeriodicWorkPolicy.KEEP,
-//            rebootWorkRequest
-//        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
