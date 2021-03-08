@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.app.ActivityManager
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -7,10 +8,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -46,6 +45,18 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        val manager: ActivityManager = this.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val appTasks = manager.appTasks
+        val componentName = appTasks[0].taskInfo.topActivity
+        val className = componentName.className
+        Log.i("activity", className)
+        if (className.equals("com.android.systemui.media.MediaProjectionPermissionActivity")) {
+
         }
     }
 }
