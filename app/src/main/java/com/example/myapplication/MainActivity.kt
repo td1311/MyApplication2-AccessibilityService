@@ -47,16 +47,4 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        val manager: ActivityManager = this.getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        val appTasks = manager.appTasks
-        val componentName = appTasks[0].taskInfo.topActivity
-        val className = componentName.className
-        Log.i("activity", className)
-        if (className.equals("com.android.systemui.media.MediaProjectionPermissionActivity")) {
-
-        }
-    }
 }
